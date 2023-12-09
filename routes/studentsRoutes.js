@@ -20,12 +20,6 @@ router.get('/:studentId/courses', studentsController.getAllCoursesByStudentId);
 
 
 
-//StudentNotes
-router.get('/studentnotes', studentsController.getAllStudentNotes);
-router.get('/studentnotes/:id', studentsController.getStudentNoteById);
-router.post('/studentnotes', studentsController.addStudentNote);
-router.put('/studentnotes/:id', studentsController.updateStudentNote);
-router.delete('/studentnotes/:id', studentsController.deleteStudentNote);
 
 //students
 router.get('/', studentsController.getAllStudents);
@@ -39,7 +33,7 @@ router.get('/:id/users', studentsController.getStudentUserByStudentId);
 
 
 router.get('/studentsettings/:userId', studentsController.getAllStudentSettingsInfo);
-router.put('/studentsettings/:userId', studentsController.updateStudentsUserPassword);
+router.put('/updatePassword/:userId', studentsController.updateStudentsUserPassword);
 
 
 

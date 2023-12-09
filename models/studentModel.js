@@ -150,13 +150,15 @@ const getAllStudentSettingsInfo = async (userId) =>{
 
 
 
-const updateStudentsUserPassword = async (userId, newPassword) =>{
+exports.updateStudentsUserPassword = async (userId, newPassword) =>{
  
   try {
-
+    console.log( newPassword);
    
    const pool = await new sql.connect(config);
     const result = await pool.request().query(`update users set password= '${newPassword}' where id=${userId}`);
+
+    console.log('model:'+ newPassword);
     return result.recordset;
   } catch (error) {
     throw new Error('An error occurred while updateing students password');

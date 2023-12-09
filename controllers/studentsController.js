@@ -313,7 +313,7 @@ exports.updateStudentsUserPassword = async (req, res) => {
   try {
     const userId=req.params.userId;
     const newPassword=req.body.password;
-    console.log(newPassword)
+    console.log(userId, newPassword)
     const studentsnewPassword = await studentModel.updateStudentsUserPassword(userId, newPassword);
     res.status(200).json(studentsnewPassword);
   } catch (error) {
