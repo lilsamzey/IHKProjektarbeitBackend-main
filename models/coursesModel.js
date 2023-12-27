@@ -4,7 +4,7 @@ const config = require('../config');
 exports.getAllCourses = async () => {
   try {
     const pool = await new sql.connect(config);
-    const result = await pool.request().query('SELECT * FROM courses ORDER by CourseId DESC');
+    const result = await pool.request().query('SELECT * FROM courses ORDER by courseId DESC');
     return result.recordset;
   } catch (error) {
     throw new Error('An error occurred while fetching courses');
@@ -31,11 +31,10 @@ exports.getCourseById = async (id) => {
 
 exports.addCourse = async (course) => {
   try {
+    console.log(course)
     const pool = await new sql.connect(config);
-    const query = `
-      INSERT INTO Courses (courseName, courseCode, courseDetails, startDate, length, price, teacher, studentsNumber, contactNumber)
-      VALUES ('${course.courseName}', '${course.courseCode}', '${course.courseDetails}', '${course.startDate}', '${course.length}', '${course.price}', '${course.teacher}', '${course.studentsNumber}', '${course.contactNumber}')
-    `;
+    const query = `INSERT INTO Courses (courseName, courseDetails, startDate, length, courseGroup)
+      VALUES ('${course.courseName}', '${course.courseDetails}', '${course.startDate}', '${course.length}', '${course.courseGroup}') `;
     await pool.request().query(query);
   } catch (error) {
     throw new Error('Failed to add course');
@@ -82,10 +81,10 @@ exports.getStudentsByCourseId = async (id) => {
     const pool = await new sql.connect(config);
     const result = await pool
       .request()
-      .input('id', sql.Int, id) // req.params.courseId olarak değiştirildi
-      .query('SELECT  *  FROM Students AS S JOIN StudentCourses AS SC ON S.StudentId = SC.studentId WHERE SC.courseId = @id');
+      .input('id', sql.Int, id) // req.params.courseId 
+      .query('EXEC GetStudentsByCourseId @CourseId = @id');
  
-    // res.status(200).json(result.recordset); // Sonucu JSON olarak dön
+    // res.status(200).json(result.recordset); // 
     
     return result.recordset;
 
@@ -195,37 +194,3 @@ exports.getCourseAttendance     = async (CourseId) => {
 
 
 
-exports.courseAttendanceStudents = async (CourseId, date) => {
-  try {
-    
-   
-    const pool = await new sql.connect(config);
-    const query = `EXEC courseAttendanceStudents  @targetCourseID = ${CourseId}, @targetDate = '${date}'`;
-    const result = await pool.request().query(query);
-
-    return result.recordset;
-  } catch (error) {
-    throw new Error('An error occurred while fetching the course');
-  }
-};
-
-
-
-
-exports.getFileCountByCourseId = async (id) => {
-  try {
-
-    const pool = await new sql.connect(config);
-    const result = await pool
-      .request()
-      .input('id', sql.Int, id) // req.params.courseId olarak değiştirildi
-      .query('EXEC sp_GetFileCountByCourseId @CourseId = @id');
- 
-    // res.status(200).json(result.recordset); // Sonucu JSON olarak dön
-    
-    return result.recordset;
-
-  } catch (error) {
-    res.status(500).json({ error: 'An error occurred while fetching the course' });
-  }
-};

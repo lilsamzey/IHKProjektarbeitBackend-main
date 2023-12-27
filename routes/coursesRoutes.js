@@ -35,7 +35,7 @@ router.post('/:courseId/assign', coursesController.addAssignedTeacher);
 router.delete('/:courseId/teachers/:teacherId', coursesController.removeTeacherFromCourse);
 
 
-router.get('/:courseId/filecountofcourse', coursesController.getFileCountByCourseId);
+
 
 
 

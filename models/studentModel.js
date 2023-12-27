@@ -1,6 +1,3 @@
-
-
-
 const sql = require('mssql');
 const config = require('../config');
 
@@ -114,18 +111,6 @@ exports.deleteStudent = async (studentId) => {
 };
 
 
-// const deleteStudent = async (id) => {
-//   try {
-//     const pool = await sql.connect(config);
-//     const result = await pool
-//       .request()
-//       .input('id', sql.Int, id)
-//       .query('DELETE FROM Students WHERE Id = @id');
-//     return result.rowsAffected;
-//   } catch (error) {
-//     throw new Error(`Failed to delete student: ${error}`);
-//   }
-// };
 
 
 
@@ -172,16 +157,4 @@ exports.updateStudentsUserPassword = async (userId, newPassword) =>{
 };
 
 
-
-
-
-
-// module.exports = {
-  
-//   addStudent,
-//   updateStudent,
-//   deleteStudent,
-//   getAllStudentSettingsInfo,
-//   updateStudentsUserPassword
-// };
 

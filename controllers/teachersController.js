@@ -28,6 +28,7 @@ exports.getTeacherById = async (req, res) => {
 exports.addTeacher = async (req, res) => {
   try {
     const teacher = req.body;
+    console.log(teacher)
    
     await teachersModel.addTeacher(teacher);
     
@@ -39,29 +40,19 @@ exports.addTeacher = async (req, res) => {
 };
 
 
-// exports.addTeacher = async (req, res) => {
-//   try {
-//     const teacher = req.body;
-
-//     await teachersModel.addTeacher(teacher);
-    
-//     console.log('Added teacher name:' +teacher.first)
-//     res.status(200).json({ message: 'Teacher added successfully' });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 exports.updateTeacher = async (req, res) => {
   try {
     const id = req.params.id;
     const teacher = req.body;
+
+    console.log(id, teacher)
    
     await teachersModel.updateTeacher(id, teacher);
    
     res.status(200).json({ message: 'Teacher updated successfully' });
   } catch (error) {
-    console.log('error var')
+    console.log('Error: There is a mistake with email address')
     res.status(500).json({ error: error.message });
   }
 };

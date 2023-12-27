@@ -19,9 +19,12 @@ exports.getCourseById = async (req, res) => {
   }
 };
 
+
+
 exports.addCourse = async (req, res) => {
   try {
     const course = req.body;
+    console.log('Added course name:' + course.courseName);
 
     await coursesModel.addCourse(course);
 
@@ -31,6 +34,8 @@ exports.addCourse = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 exports.updateCourse = async (req, res) => {
   try {
@@ -102,10 +107,14 @@ exports.removeStudentFromCourse = async (req, res) => {
 
 
 exports.addAssignedTeacher = async (req, res) => {
-  const { courseId } = req.params;
-  const { teacherId } = req.body;
+  
 
   try {
+
+    const { courseId } = req.params;
+    const { teacherId } = req.body;
+
+    console.log(courseId, teacherId)
     await coursesModel.addAssignedTeacher(courseId, teacherId);
 
     res.status(200).json({ message: 'Teacher enrolled successfully' });
@@ -160,38 +169,9 @@ exports.addAssignedTeacher = async (req, res) => {
 
 
 
-  exports.courseAttendanceStudents = async (req, res) => {
-    try {
-      const CourseId = req.params.courseId;
-      const date = req.params.date;
-  
-      
-      const attendance = await coursesModel.courseAttendanceStudents(CourseId, date);
-  
-      
-      res.status(200).json(attendance);
-    } catch (error) {
-      console.error('An error occurred while fetching course attendance:', error.message);
-      res.status(500).json({ error: 'An error occurred while fetching course attendance' });
-    }
-  };
 
-
-
-  exports.getFileCountByCourseId = async (req, res) => {
-    try {
-      const CourseId= req.params.courseId;
-
-      console.log(CourseId)
-      const attendance = await coursesModel.getFileCountByCourseId(CourseId);
-  
 
   
-      res.status(200).json(attendance);
-    } catch (error) {
-      throw new Error('An error occurred while fetching course attendance');
-    }
-  };
 
 
   

@@ -38,61 +38,29 @@ exports.getTeacherById = async (id) => {
 
 
 
-
-
-
-
 exports.addTeacher = async (teacher) => {
-  let pool;
   try {
-    pool = await new sql.connect(config);
+    const pool = await sql.connect(config);
+    const result = await pool.request().query(`
+      EXEC AddTeacher
+        @firstName = N'${teacher.firstName}',
+        @lastName = N'${teacher.lastName}',
+        @gender = N'${teacher.gender}',
+        @mobile = N'${teacher.mobile}',
+        @email = N'${teacher.email}',
+        @address = N'${teacher.address}'
+    `);
 
-    // Öğretmenin e-posta adresini kontrol et
-    const emailExistsQuery = `
-      SELECT * FROM Users WHERE email = '${teacher.email}';
-    `;
-    const emailExistsResult = await pool.request().query(emailExistsQuery);
-
-    if (emailExistsResult.recordset.length > 0) {
-      throw new Error('Failed to add teacher. Email already exists.');
+    
+    if (result.recordset && result.recordset[0].ErrorMessage) {
+      throw new Error(result.recordset[0].ErrorMessage);
     }
 
-    // Öğretmeni Teachers tablosuna ekle
-    const teacherQuery = `
-      INSERT INTO Teachers (firstName, lastName, gender, mobile, password, confirmPassword, email, designation, department, address, dob, education, uploadFile)
-      VALUES ('${teacher.firstName}', '${teacher.lastName}', '${teacher.gender}', '${teacher.mobile}', '${teacher.password}', '${teacher.conformPassword}', '${teacher.email}', '${teacher.designation}', '${teacher.department}', '${teacher.address}', '${teacher.dob}', '${teacher.education}', '${teacher.uploadFile}')
-    `;
-    await pool.request().query(teacherQuery);
-
-    // Eklenen öğretmenin ID'sini al
-    const teacherId = await getTeacherId(pool, teacher.email);
-
-    // Öğretmeni Users tablosuna ekle
-    const username = teacher.email;
-    const password = `${teacherId}${teacher.firstName}${teacher.lastName}`;
-    const role = 'Teacher';
-    const token = 'token';
-    const img = 'assets/images/user/teacher.jpg';
-    const firstName = teacher.firstName;
-
-    const userQuery = `
-      INSERT INTO Users (username, password, email, lastName, role, token, img, firstName)
-      VALUES ('${username}', '${password}', '${teacher.email}', '${teacher.lastName}', '${role}', '${token}', '${img}', '${firstName}')
-    `;
-    await pool.request().query(userQuery);
-
-    // Öğretmeni teacherUsers tablosuna ekle
-    const teacherUserQuery = `
-      INSERT INTO teacherUsers (teacherId, userId)
-      VALUES (${teacherId}, (SELECT id FROM Users WHERE email = '${teacher.email}'))
-    `;
-    await pool.request().query(teacherUserQuery);
-
-    console.log('Added Teacher Name:', teacher.firstName);
+    return { message: 'Teacher added successfully' };
   } catch (error) {
-    console.log(error);
-    throw new Error('Failed to add teacher');
-  } 
+    console.error(error);
+    throw error; 
+  }
 };
 
 
@@ -100,64 +68,7 @@ exports.addTeacher = async (teacher) => {
 
 
 
-// exports.addTeacher = async (teacher) => {
-//   let pool;
-//   try {
-//     pool = await new sql.connect(config);
 
-//     // Öğretmenin e-posta adresini kontrol et
-//     const emailExistsQuery = `
-//       SELECT * FROM Users WHERE email = '${teacher.email}';
-//     `;
-//     const emailExistsResult = await pool.request().query(emailExistsQuery);
-
-//     if (emailExistsResult.recordset.length > 0) {
-//       throw new Error('Failed to add teacher. Email already exists.');
-//     }
-
-//     // Öğretmeni Teachers tablosuna ekle
-//     const query = `
-//       INSERT INTO Teachers (firstName, lastName, gender, mobile, password, confirmPassword, email, designation, department, address, dob, education, uploadFile)
-//       VALUES ('${teacher.first}', '${teacher.last}', '${teacher.gender}', '${teacher.mobile}', '${teacher.password}', '${teacher.conformPassword}', '${teacher.email}', '${teacher.designation}', '${teacher.department}', '${teacher.address}', '${teacher.dob}', '${teacher.education}', '${teacher.uploadFile}')
-//     `;
-
-//     await pool.request().query(query);
-
-   
-
-//     // Eklenen öğretmenin ID'sini al
-//     const teacherId = await getTeacherId(pool, teacher.email);
-
-//     // Öğretmeni Users tablosuna ekle
-//     const username = teacher.email;
-//     const password = `${teacherId}${teacher.first}${teacher.last}`;
-//     const role = 'Teacher';
-//     const token = 'token';
-//     const img = 'assets/images/user/student.jpg';
-//     const firstName = teacher.first;
-
-    
-
-    
-
-//     const userQuery = `
-//       INSERT INTO Users (username, password, email, lastName, role, token, img, firstName)
-//       VALUES ('${username}', '${password}', '${teacher.email}', '${teacher.last}', '${role}', '${token}', '${img}', '${firstName}')
-//     `;
-//     await pool.request().query(userQuery);
-//   } catch (error) {
-//     console.log(error)
-//     throw new Error('Failed to add teacher');
-//   } 
-//   // finally {
-//   //   // Bağlantıyı havuzdan kaldır
-//   //   if (pool) {
-//   //     await pool.close();
-//   //   }
-//   // }
-// };
-
-// Öğretmenin ID'sini almak için yardımcı bir fonksiyon
 const getTeacherId = async (pool, email) => {
   const query = `
     SELECT TeacherId FROM Teachers WHERE email = '${email}';
@@ -171,27 +82,32 @@ const getTeacherId = async (pool, email) => {
 
 
 
-exports.updateTeacher = async (id, teacher) => {
-    let pool;
-    try {
-        
 
-      const pool = await new sql.connect(config);
-      const query = `
-        UPDATE Teachers
-        SET firstName = '${teacher.firstName}', lastName = '${teacher.lastName}', gender = '${teacher.gender}',
-            mobile = '${teacher.mobile}', password = '${teacher.password}', confirmPassword = '${teacher.conformPassword}',
-            email = '${teacher.email}', designation = '${teacher.designation}', department = '${teacher.department}',
-            address = '${teacher.address}', dob = '${teacher.dob}', education = '${teacher.education}',
-            uploadFile = '${teacher.uploadFile}'
-        WHERE TeacherId = ${id}
-      `;
-      await pool.request().query(query);
-      console.log('updated teachers name:' + teacher.firstName)
-    } catch (error) {
-      throw new Error('Failed to update teacher');
+
+
+exports.updateTeacher = async (id,teacher) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request().query(`
+      EXEC updateTeacher
+        @teacherId = ${teacher.teacherId},
+        @firstName = N'${teacher.firstName}',
+        @lastName = N'${teacher.lastName}',
+        @gender = N'${teacher.gender}',
+        @mobile = N'${teacher.mobile}',
+        @email = N'${teacher.email}',
+        @address = N'${teacher.address}'
+    `);
+    if (result.recordset && result.recordset[0].ErrorMessage) {
+      throw new Error('Check Email address');
     }
-  };
+
+    return { message: 'Teacher updated successfully' };
+  } catch (error) {
+    
+    throw new Error('An error occurred while updating a teacher');
+  }
+};
   
 
 
@@ -199,8 +115,9 @@ exports.updateTeacher = async (id, teacher) => {
   
 exports.deleteTeacher = async (id) => {
   try {
+    console.log(id)
     const pool = await new sql.connect(config);
-    const query = `DELETE FROM Teachers WHERE TeacherId = ${id}`;
+    const query = `EXEC deleteTeacher  @teacherId = ${id}`;
     await pool.request().query(query);
 
     console.log('Deleted Teacher id:' +id)
